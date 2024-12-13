@@ -1,26 +1,41 @@
-#include "../../../../include/kernel/standard/stdint.h"
+#include <stdint.h>
 #include "../../../../include/kernel/standard/memory.h"
 #include "../../../../include/kernel/sys/x86_64/gdt.h"
 
-void load_gdtr(struct gdtr GDTR) 
+struct gdt_entry_bits gdt [1+4+1];
+struct tss_table tss;
+
+void load_gdtr(struct gdtr GDTR)
 {
-    asm("lgdt 8(%esp)");
+    asm("lgdt %0\n\t"
+        /* Reload segment registers */
+        "mov %1, %%ds\n\t"
+        "mov %1, %%es\n\t"
+        "mov %1, %%fs\n\t"
+        "mov %1, %%gs\n\t"
+        "mov %1, %%ss\n\t"
+        /* Perform far return to set CS */
+        "pushl %2\n\t"
+        "pushl $1f\n\t"
+        "retf\n\t"
+        "1:"
+        :
+        : "m"(GDTR),
+          "a"(0x10) /* Data selector */
+        , "i"(0x08) /* Code selector */
+        : "memory");
 }
 
-void flush_tss() 
+void load_tss()
 {
-    asm(
-	"mov $0x2B, %ax \n\t"
-	"ltr %ax"
-    );
-
+    asm("ltr %0" :: "r"(0x2b));
 }
 
 void write_tss(struct gdt_entry_bits *g)
 {
    // Firstly, let's compute the base and limit of our entry into the GDT.
    uint32_t base = (uint32_t) &tss;
-   uint32_t limit = sizeof(tss);
+   uint32_t limit = sizeof(tss)-1; // TSS limit is 1 less then the size
  
    // Now, add our TSS descriptor's address to the GDT.
    g->limit_low=limit&0xFFFF;
@@ -44,6 +59,7 @@ void write_tss(struct gdt_entry_bits *g)
  
    tss.ss0  = 0x10;  // Set the kernel stack segment. (DATA)
    tss.esp0 = 0; // Set the kernel stack pointer.
+   tss.iomap_base = sizeof(tss); // Set iomap_base to one more than the limit to disable IO bitmap
    //note that CS is loaded from the IDT entry and should be the regular kernel code segment
 }
 
@@ -107,6 +123,5 @@ void setup_gdt()
 
 
     load_gdtr(gdt_descriptor);
-
-    flush_tss();
+    load_tss();
 }
