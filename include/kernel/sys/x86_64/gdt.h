@@ -1,7 +1,9 @@
 #ifndef _GDT_H_
 #define _GDT_H_
 
-#include "../../standard/stdint.h"
+#include <stdint.h>
+
+#define NUM_GDT_ENTRIES (1+4+1)
 
 struct gdt_entry_bits
 {
@@ -58,10 +60,10 @@ struct tss_table
    uint32_t ldt;      
    uint16_t trap;
    uint16_t iomap_base;
-} __packed;
+} __attribute__((packed));
 
-struct gdt_entry_bits gdt [1+4+1];
-struct tss_table tss;
+extern struct gdt_entry_bits gdt[NUM_GDT_ENTRIES];
+extern struct tss_table tss;
 
 void load_gdtr(struct gdtr GDTR);
 void flush_tss ();
