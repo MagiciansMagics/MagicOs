@@ -2,7 +2,7 @@
 #include "../../../../include/kernel/standard/memory.h"
 #include "../../../../include/kernel/sys/x86_64/gdt.h"
 
-struct gdt_entry_bits gdt [1+4+1];
+struct gdt_entry_bits gdt [NUM_GDT_ENTRIES];
 struct tss_table tss;
 
 void load_gdtr(struct gdtr GDTR)

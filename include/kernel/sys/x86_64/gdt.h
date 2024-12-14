@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define NUM_GDT_ENTRIES (1+4+1)
+
 struct gdt_entry_bits
 {
 	unsigned int limit_low:16;
@@ -60,7 +62,7 @@ struct tss_table
    uint16_t iomap_base;
 } __attribute__((packed));
 
-extern struct gdt_entry_bits gdt[];
+extern struct gdt_entry_bits gdt[NUM_GDT_ENTRIES];
 extern struct tss_table tss;
 
 void load_gdtr(struct gdtr GDTR);
