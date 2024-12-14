@@ -35,7 +35,7 @@ void write_tss(struct gdt_entry_bits *g)
 {
    // Firstly, let's compute the base and limit of our entry into the GDT.
    uint32_t base = (uint32_t) &tss;
-   uint32_t limit = sizeof(tss)-1; // TSS limit is 1 less then the size
+   uint32_t limit = sizeof(tss)-1; // TSS limit is 1 less than the actual size
  
    // Now, add our TSS descriptor's address to the GDT.
    g->limit_low=limit&0xFFFF;
