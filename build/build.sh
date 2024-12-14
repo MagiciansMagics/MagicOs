@@ -20,9 +20,9 @@ i386-elf-ld -Ttext 0x5000 -o ../bin/main32_kernel.elf ../bin/kernel32_loader.o .
     ../bin/memory.o \
     ../bin/gdt64.o
 
-# Create main32_kernel.bin from main32_kernel.bin
+# Create main32_kernel.bin from main32_kernel.elf
 i386-elf-objcopy -O binary ../bin/main32_kernel.elf ../bin/main32_kernel.bin
-# Create objdump.txt for aid in debugging
+# Create objdump.txt to aid in debugging
 i386-elf-objdump -DxS ../bin/main32_kernel.elf >objdump.txt
 
 cat ../bin/main_boot.bin ../bin/second_stage_boot.bin ../bin/main32_kernel.bin > os.bin
